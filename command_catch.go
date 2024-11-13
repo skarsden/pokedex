@@ -11,7 +11,9 @@ func commandCatch(cfg *Config, args ...string) error {
 		return errors.New("incorrect number of arguments")
 	}
 
-	pokemon, err := cfg.pokeClient.GetPokemon(args[0])
+	pokemonName := args[0]
+
+	pokemon, err := cfg.pokeClient.GetPokemon(pokemonName)
 	if err != nil {
 		return fmt.Errorf("error getting pokemon: %v", err)
 	}

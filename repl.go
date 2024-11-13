@@ -74,6 +74,16 @@ func getCommands() map[string]Command {
 			description: "Attempts to catch the given pokemon",
 			callback:    commandCatch,
 		},
+		"inspect": {
+			name:        "inspect {pokemon name}",
+			description: "Prints details of given pokemon if the user has caught it with the Catch command",
+			callback:    commandInspect,
+		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "Prints names of all caught pokemon",
+			callback:    commandPokedex,
+		},
 		"exit": {
 			name:        "exit",
 			description: "Exits the Pokedex",

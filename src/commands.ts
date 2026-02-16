@@ -21,8 +21,18 @@ export function getCommands(): Record<string, CLICommand> {
         },
         mapb: {
             name: "mapb",
-            description: "get the previous page of locations",
+            description: "Get the previous page of locations",
             callback: commandMapBackward
+        },
+        explore: {
+            name: "explore <location name>",
+            description: "Get the pokemon that can be found in the specified location",
+            callback: commandExplore
+        },
+        catch: {
+            name: "catch <pokemon name>",
+            description: "Catch a speficied pokemon",
+            callback: commandCatch
         }
     };
 }
@@ -62,5 +72,39 @@ export async function commandMapBackward(state: State) {
     for (const loc of locations.results) {
         console.log(loc.name);
     }
+}
+
+export async function commandExplore(state: State, ...args: string[]) {
+    if(args.length < 1) {
+        throw new Error("You must provide a location name");
+    }
+
+    const locationName = args[0];
+    console.log(`Exploring ${locationName}...`);
+    const encounters = (await state.pokeAPI.fetchLocation(locationName)).pokemon_encounters;
+    console.log("Found Pokemon:");
+
+    for(const encounter of encounters) {
+        console.log(`- ${encounter.pokemon.name}`);
+    }
+}
+
+export async function commandCatch(state: State, ...args: string[]) {
+    if (args.length < 1) {
+        throw new Error("you must provide a pokemon name");
+    }
+
+    const pokemon = await state.pokeAPI.fetchPokemon(args[0]);
+    console.log(`Throwing a Pokeball at ${pokemon.name}...`);
+
+    const res = Math.floor(Math.random() * pokemon.base_experience);
+    if(res > 40) {
+        console.log(`${pokemon.name} escaped!`);
+        return;
+    }
+
+    console.log(`${pokemon.name} was caught!`);
+    console.log("You may now inspect it with the inspect command.");
+    state.caughtPokemon[pokemon.name] = pokemon;
 }
 //Command functions-----------------------------------------

@@ -1,8 +1,5 @@
-export type CLICommand = {
-    name: string;
-    description: string;
-    callback: (commands: Record<string, CLICommand>) => void;
-}
+import { StatementSync } from "node:sqlite";
+import { CLICommand, State } from "./state.js";
 
 //Command registry------------------------------------------
 export function getCommands(): Record<string, CLICommand> {
@@ -22,15 +19,16 @@ export function getCommands(): Record<string, CLICommand> {
 //Command registry------------------------------------------
 
 //Command functions-----------------------------------------
-export function commandExit() {
+export function commandExit(state: State) {
     console.log("Closing the Pokedex... Goodbye!");
+    state.readline.close();
     process.exit(0);
 }
 
-export function commandHelp(commands: Record<string, CLICommand>) {
+export function commandHelp(state: State) {
     console.log("\nWelcome to the Pokedex!");
     console.log("Usage:\n");
-    for (const cmd of Object.values(commands)) {
+    for (const cmd of Object.values(state.commands)) {
         console.log(`${cmd.name}: ${cmd.description}`);
     }
     console.log();

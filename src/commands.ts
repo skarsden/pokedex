@@ -6,7 +6,7 @@ export function getCommands(): Record<string, CLICommand> {
     return {
         help: {
             name: "help",
-            description: "Displats a help message",
+            description: "Displays a help message",
             callback: commandHelp,
         },
         exit: {
@@ -33,6 +33,16 @@ export function getCommands(): Record<string, CLICommand> {
             name: "catch <pokemon name>",
             description: "Catch a speficied pokemon",
             callback: commandCatch
+        },
+        inspect: {
+            name: "inspect <pokemon name>",
+            description: "Inspect a pokemon that has been caught",
+            callback: commandInspect
+        },
+        pokedex: {
+            name: "pokedex",
+            description: "See all the Pokemon that have been caught",
+            callback: commandPokedex
         }
     };
 }
@@ -42,6 +52,7 @@ export function getCommands(): Record<string, CLICommand> {
 export async function commandExit(state: State) {
     console.log("Closing the Pokedex... Goodbye!");
     state.readline.close();
+    state.pokeAPI.closeCache();
     process.exit(0);
 }
 
@@ -106,5 +117,38 @@ export async function commandCatch(state: State, ...args: string[]) {
     console.log(`${pokemon.name} was caught!`);
     console.log("You may now inspect it with the inspect command.");
     state.caughtPokemon[pokemon.name] = pokemon;
+}
+
+export async function commandInspect(state: State, ...args: string[]) {
+    if (args.length < 1) {
+        throw new Error("You must provide a pokemon name");
+    }
+    const pokemonName = args[0];
+
+    if (state.caughtPokemon[pokemonName] === undefined) {
+        console.log("You have not caught that pokemon yet");
+        return;
+    }
+
+    const pokemon = state.caughtPokemon[pokemonName];
+
+    console.log(`Name: ${pokemon.name}`);
+    console.log(`Height: ${pokemon.height}`);
+    console.log(`Weight: ${pokemon.weight}`);
+    console.log("Stats:");
+    for (const stat of pokemon.stats) {
+        console.log(`  -${stat.stat.name}: ${stat.base_stat}`);
+    }
+    console.log("Types:");
+    for (const type of pokemon.types) {
+    console.log(`  - ${type.type.name}`);
+    }
+}
+
+export async function commandPokedex(state: State) {
+    console.log("Your Pokedex:");
+    for (const pokemon of Object.values(state.caughtPokemon)) {
+        console.log(` - ${pokemon.name}`);
+    }
 }
 //Command functions-----------------------------------------
